@@ -18,6 +18,4 @@ class OverriddenModel extends Model
     public $stripeIdSeparator = ':';
 
     public $stripeIdPrefix = 'om';
-
-    protected $table = 'test_models';
 }

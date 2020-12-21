@@ -12,6 +12,4 @@ class DefaultModel extends Model
     protected static $unguarded = true;
 
     public $stripeIdPrefix = 'dm';
-
-    protected $table = 'test_models';
 }

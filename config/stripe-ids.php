@@ -8,4 +8,13 @@ return [
 
     'separator' => env('STRIPE_IDS_SEPARATOR', '_'),
 
+    // The 'prefixes' key is optional, and is only required if you are using the StripeIds::findByStripeId() method to
+    // find generic models by their id.
+
+    'prefixes' => [
+
+        // 'ch' => \App\Models\Charge::class,
+
+    ],
+
 ];

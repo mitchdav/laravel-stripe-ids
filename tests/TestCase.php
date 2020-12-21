@@ -20,7 +20,15 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
         $app['db']
             ->connection()
             ->getSchemaBuilder()
-            ->create('test_models', function (Blueprint $table) {
+            ->create('default_models', function (Blueprint $table) {
+                $table->string('id');
+                $table->timestamps();
+            });
+
+        $app['db']
+            ->connection()
+            ->getSchemaBuilder()
+            ->create('overridden_models', function (Blueprint $table) {
                 $table->string('id');
                 $table->timestamps();
             });

@@ -21,7 +21,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             return new StripeIds(
                 $app['config']['stripe-ids']['alphabet'],
                 $app['config']['stripe-ids']['length'],
-                $app['config']['stripe-ids']['separator']
+                $app['config']['stripe-ids']['separator'],
+                $app['config']['stripe-ids']['prefixes']
             );
         });
     }
