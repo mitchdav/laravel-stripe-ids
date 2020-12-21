@@ -19,7 +19,7 @@
     }
   ],
   "scripts": {
-    "test": "phpunit"
+    "test": "phpunit tests"
   },
   "autoload": {
     "psr-4": {
