@@ -1,0 +1,51 @@
+{
+  "name": "mitchdav/laravel-stripe-ids",
+  "description": "Generate Stripe-style IDs (ch_xxxxxxxxxx) for your Eloquent models.",
+  "keywords": [
+    "laravel",
+    "eloquent",
+    "model",
+    "stripe",
+    "pretty",
+    "id",
+    "ids"
+  ],
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Mitchell Davis",
+      "email": "mdavis@atlas.dev"
+    }
+  ],
+  "scripts": {
+    "test": "phpunit"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mitchdav\\StripeIds\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Mitchdav\\StripeIds\\Tests\\": "tests"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Mitchdav\\StripeIds\\ServiceProvider"
+      ],
+      "aliases": {
+        "StripeIds": "Mitchdav\\StripeIds\\Facade"
+      }
+    }
+  },
+  "require": {
+    "illuminate/support": "7.*|8.*"
+  },
+  "require-dev": {
+    "orchestra/testbench": "5.*|6.*",
+    "phpunit/phpunit": "^8.5.8|^9.3.3"
+  }
+}
