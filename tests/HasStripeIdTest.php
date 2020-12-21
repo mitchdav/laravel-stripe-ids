@@ -36,7 +36,7 @@ class HasStripeIdTest extends TestCase
 
         $pattern = '/^'.OverriddenModel::$stripeIdsPrefix.OverriddenModel::$stripeIdsSeparator.'['.OverriddenModel::$stripeIdsAlphabet.']+$/';
 
-        $this->assertMatchesRegularExpression($pattern, $model->getKey());
+        $this->assertEquals(1, preg_match($pattern, $model->getKey()));
         $this->assertEquals(
             strlen(OverriddenModel::$stripeIdsPrefix) + strlen(OverriddenModel::$stripeIdsSeparator) + OverriddenModel::$stripeIdsLength,
             strlen($model->getKey())

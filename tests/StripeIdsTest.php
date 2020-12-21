@@ -21,7 +21,7 @@ class StripeIdsTest extends TestCase
 
         $hash = $stripeIds->hash();
 
-        $this->assertMatchesRegularExpression('/^['.self::ALPHABET.']+$/', $hash);
+        $this->assertEquals(1, preg_match('/^['.self::ALPHABET.']+$/', $hash));
         $this->assertEquals(self::LENGTH, strlen($hash));
     }
 
@@ -34,7 +34,7 @@ class StripeIdsTest extends TestCase
 
         $id = $stripeIds->id($prefix);
 
-        $this->assertMatchesRegularExpression('/^'.$prefix.self::SEPARATOR.'['.self::ALPHABET.']+$/', $id);
+        $this->assertEquals(1, preg_match('/^'.$prefix.self::SEPARATOR.'['.self::ALPHABET.']+$/', $id));
         $this->assertEquals(strlen($prefix) + strlen(self::SEPARATOR) + self::LENGTH, strlen($id));
     }
 
