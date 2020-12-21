@@ -9,15 +9,15 @@ class OverriddenModel extends Model
 {
     use HasStripeId;
 
-    public static $stripeIdsAlphabet = 'ABCDEF123456';
-
-    public static $stripeIdsLength = 10;
-
-    public static $stripeIdsSeparator = ':';
-
-    public static $stripeIdsPrefix = 'om';
-
     protected static $unguarded = true;
+
+    public $stripeIdAlphabet = 'ABCDEF123456';
+
+    public $stripeIdLength = 10;
+
+    public $stripeIdSeparator = ':';
+
+    public $stripeIdPrefix = 'om';
 
     protected $table = 'test_models';
 }

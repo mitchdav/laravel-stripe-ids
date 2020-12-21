@@ -13,12 +13,15 @@ class HasStripeIdTest extends TestCase
         /** @var DefaultModel $model */
         $model = DefaultModel::query()->make();
 
+        $prefix = $model->getStripeIdPrefix();
+        $separator = $model->getStripeIdSeparator();
+
         $this->assertNull($model->getKey());
 
         $model->save();
 
         $this->assertNotNull($model->getKey());
-        $this->assertStringStartsWith(DefaultModel::$stripeIdsPrefix, $model->getKey());
+        $this->assertStringStartsWith($prefix.$separator, $model->getKey());
     }
 
     /** @test */
@@ -27,20 +30,22 @@ class HasStripeIdTest extends TestCase
         /** @var OverriddenModel $model */
         $model = OverriddenModel::query()->make();
 
+        $prefix = $model->getStripeIdPrefix();
+        $alphabet = $model->getStripeIdAlphabet();
+        $length = $model->getStripeIdLength();
+        $separator = $model->getStripeIdSeparator();
+
         $this->assertNull($model->getKey());
 
         $model->save();
 
         $this->assertNotNull($model->getKey());
-        $this->assertStringStartsWith(OverriddenModel::$stripeIdsPrefix, $model->getKey());
+        $this->assertStringStartsWith($prefix.$separator, $model->getKey());
 
-        $pattern = '/^'.OverriddenModel::$stripeIdsPrefix.OverriddenModel::$stripeIdsSeparator.'['.OverriddenModel::$stripeIdsAlphabet.']+$/';
+        $pattern = '/^'.$prefix.$separator.'['.$alphabet.']+$/';
 
         $this->assertEquals(1, preg_match($pattern, $model->getKey()));
-        $this->assertEquals(
-            strlen(OverriddenModel::$stripeIdsPrefix) + strlen(OverriddenModel::$stripeIdsSeparator) + OverriddenModel::$stripeIdsLength,
-            strlen($model->getKey())
-        );
+        $this->assertEquals(strlen($prefix) + strlen($separator) + $length, strlen($model->getKey()));
     }
 
     /** @test */

@@ -9,9 +9,9 @@ class DefaultModel extends Model
 {
     use HasStripeId;
 
-    public static $stripeIdsPrefix = 'dm';
-
     protected static $unguarded = true;
+
+    public $stripeIdPrefix = 'dm';
 
     protected $table = 'test_models';
 }

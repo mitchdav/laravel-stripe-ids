@@ -3,10 +3,10 @@
 namespace Mitchdav\StripeIds;
 
 /**
- * @property static $stripeIdsAlphabet
- * @property static $stripeIdsLength
- * @property static $stripeIdsSeparator
- * @property static $stripeIdsPrefix
+ * @property string $stripeIdAlphabet
+ * @property int $stripeIdLength
+ * @property string $stripeIdSeparator
+ * @property string $stripeIdPrefix
  */
 trait HasStripeId
 {
@@ -15,12 +15,12 @@ trait HasStripeId
         static::creating(function ($model) {
             if (!$model->getKey()) {
                 $stripeIds = new StripeIds(
-                    self::$stripeIdsAlphabet ?? config('stripe-ids.alphabet'),
-                    self::$stripeIdsLength ?? config('stripe-ids.length'),
-                    self::$stripeIdsSeparator ?? config('stripe-ids.separator'),
+                    $model->getStripeIdAlphabet(),
+                    $model->getStripeIdLength(),
+                    $model->getStripeIdSeparator()
                 );
 
-                $model->{$model->getKeyName()} = $stripeIds->id(self::$stripeIdsPrefix);
+                $model->{$model->getKeyName()} = $stripeIds->id($model->getStripeIdPrefix());
             }
         });
     }
@@ -33,5 +33,25 @@ trait HasStripeId
     public function getKeyType()
     {
         return 'string';
+    }
+
+    public function getStripeIdAlphabet()
+    {
+        return $this->stripeIdAlphabet ?? config('stripe-ids.alphabet');
+    }
+
+    public function getStripeIdLength()
+    {
+        return $this->stripeIdLength ?? config('stripe-ids.length');
+    }
+
+    public function getStripeIdSeparator()
+    {
+        return $this->stripeIdSeparator ?? config('stripe-ids.separator');
+    }
+
+    public function getStripeIdPrefix()
+    {
+        return $this->stripeIdPrefix;
     }
 }
