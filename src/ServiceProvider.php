@@ -7,22 +7,21 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__.'/../config/stripe-ids.php', 'stripe-ids'
+            __DIR__.'/../config/stripe_ids.php', 'stripe_ids'
         );
     }
 
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/stripe-ids.php' => config_path('stripe-ids.php'),
+            __DIR__.'/../config/stripe_ids.php' => config_path('stripe_ids.php'),
         ], 'config');
 
         $this->app->singleton(StripeIds::class, function ($app) {
             return new StripeIds(
-                $app['config']['stripe-ids']['alphabet'],
-                $app['config']['stripe-ids']['length'],
-                $app['config']['stripe-ids']['separator'],
-                $app['config']['stripe-ids']['prefixes']
+                $app['config']['stripe_ids']['hash_length'],
+                $app['config']['stripe_ids']['hash_alphabet'],
+                $app['config']['stripe_ids']['prefixes']
             );
         });
     }

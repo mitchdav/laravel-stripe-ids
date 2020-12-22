@@ -11,5 +11,5 @@ class DefaultModel extends Model
 
     protected static $unguarded = true;
 
-    public $stripeIdPrefix = 'dm';
+    public $stripeIdPrefix = 'dm_';
 }

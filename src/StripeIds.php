@@ -9,62 +9,51 @@ use Illuminate\Support\Str;
 class StripeIds
 {
     /**
-     * @var string
-     */
-    private $alphabet;
-
-    /**
      * @var int
      */
-    private $alphabetLength;
-
-    /**
-     * @var int
-     */
-    private $length;
+    private $hashLength;
 
     /**
      * @var string
      */
-    private $separator;
+    private $hashAlphabet;
 
     /**
      * @var array
      */
     private $prefixes;
 
-    public function __construct(string $alphabet, int $length, string $separator, array $prefixes = [])
+    public function __construct(int $hashLength, string $hashAlphabet, array $prefixes = [])
     {
-        $this->alphabet = $alphabet;
-        $this->alphabetLength = strlen($alphabet);
-        $this->length = $length;
-        $this->separator = $separator;
+        $this->hashLength = $hashLength;
+        $this->hashAlphabet = $hashAlphabet;
         $this->prefixes = $prefixes;
     }
 
-    public function id(string $prefix)
+    public function id(string $prefix, $hashLength = null, $hashAlphabet = null)
     {
-        return $prefix.$this->separator.$this->hash();
+        return $prefix.$this->hash($hashLength, $hashAlphabet);
     }
 
-    public function hash()
+    public function hash($length = null, $alphabet = null)
     {
-        return collect(str_split(random_bytes($this->length)))
-            ->map(function ($randomByte) {
-                return $this->alphabet[ord($randomByte) % $this->alphabetLength];
+        $hashLength = $length ?? $this->hashLength;
+        $hashAlphabet = $alphabet ?? $this->hashAlphabet;
+        $hashAlphabetLength = strlen($hashAlphabet);
+
+        return collect(str_split(random_bytes($hashLength)))
+            ->map(function ($randomByte) use ($hashAlphabet, $hashAlphabetLength) {
+                return $hashAlphabet[ord($randomByte) % $hashAlphabetLength];
             })
             ->join('');
     }
 
-    public function findByStripeId($id)
+    public function findByStripeId($id, $prefixes = null)
     {
         /** @var string $model */
-        $model = collect($this->prefixes)
+        $model = collect($prefixes ?? $this->prefixes)
             ->first(function ($model, $prefix) use ($id) {
-                /** @var HasStripeId $instance */
-                $instance = app($model);
-
-                return Str::startsWith($id, $prefix.$instance->getStripeIdSeparator());
+                return Str::startsWith($id, $prefix);
             });
 
         if ($model !== null) {

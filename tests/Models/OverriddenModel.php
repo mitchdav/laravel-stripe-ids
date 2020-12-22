@@ -11,11 +11,9 @@ class OverriddenModel extends Model
 
     protected static $unguarded = true;
 
-    public $stripeIdAlphabet = 'ABCDEF123456';
+    public $stripeIdHashAlphabet = 'ABCDEF123456';
 
-    public $stripeIdLength = 10;
+    public $stripeIdHashLength = 10;
 
-    public $stripeIdSeparator = ':';
-
-    public $stripeIdPrefix = 'om';
+    public $stripeIdPrefix = 'om:';
 }

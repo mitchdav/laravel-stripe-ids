@@ -3,55 +3,54 @@
 namespace Mitchdav\StripeIds\Tests;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Collection;
 use Mitchdav\StripeIds\StripeIds;
 use Mitchdav\StripeIds\Tests\Models\DefaultModel;
 use Mitchdav\StripeIds\Tests\Models\OverriddenModel;
 
 class StripeIdsTest extends TestCase
 {
-    const ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const HASH_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-    const LENGTH = 16;
-
-    const SEPARATOR = '_';
+    const HASH_LENGTH = 16;
 
     const ITERATIONS = 10000;
 
     const PREFIXES = [
-        'dm' => DefaultModel::class,
-        'om' => OverriddenModel::class,
+        'dm_' => DefaultModel::class,
+        'om:' => OverriddenModel::class,
     ];
 
     /** @test */
     public function it_can_generate_hashes()
     {
-        $stripeIds = new StripeIds(self::ALPHABET, self::LENGTH, self::SEPARATOR);
+        $stripeIds = new StripeIds(self::HASH_LENGTH, self::HASH_ALPHABET);
 
         $hash = $stripeIds->hash();
 
-        $this->assertEquals(1, preg_match('/^['.self::ALPHABET.']+$/', $hash));
-        $this->assertEquals(self::LENGTH, strlen($hash));
+        $this->assertEquals(1, preg_match('/^['.self::HASH_ALPHABET.']+$/', $hash));
+        $this->assertEquals(self::HASH_LENGTH, strlen($hash));
     }
 
     /** @test */
     public function it_can_generate_ids()
     {
-        $stripeIds = new StripeIds(self::ALPHABET, self::LENGTH, self::SEPARATOR);
+        $stripeIds = new StripeIds(self::HASH_LENGTH, self::HASH_ALPHABET);
 
-        $prefix = 'abc';
+        $prefix = 'abc_';
 
         $id = $stripeIds->id($prefix);
 
-        $this->assertEquals(1, preg_match('/^'.$prefix.self::SEPARATOR.'['.self::ALPHABET.']+$/', $id));
-        $this->assertEquals(strlen($prefix) + strlen(self::SEPARATOR) + self::LENGTH, strlen($id));
+        $this->assertEquals(1, preg_match('/^'.$prefix.'['.self::HASH_ALPHABET.']+$/', $id));
+        $this->assertEquals(strlen($prefix) + self::HASH_LENGTH, strlen($id));
     }
 
     /** @test */
     public function it_can_generate_unique_hashes()
     {
-        $stripeIds = new StripeIds(self::ALPHABET, self::LENGTH, self::SEPARATOR);
+        $stripeIds = new StripeIds(self::HASH_LENGTH, self::HASH_ALPHABET);
 
-        $hashes = collect(range(1, self::ITERATIONS))
+        $hashes = Collection::times(self::ITERATIONS)
             ->map(function () use ($stripeIds) {
                 return $stripeIds->hash();
             });
@@ -62,9 +61,9 @@ class StripeIdsTest extends TestCase
     /** @test */
     public function it_can_generate_unique_ids()
     {
-        $stripeIds = new StripeIds(self::ALPHABET, self::LENGTH, self::SEPARATOR);
+        $stripeIds = new StripeIds(self::HASH_LENGTH, self::HASH_ALPHABET);
 
-        $ids = collect(range(1, self::ITERATIONS))
+        $ids = Collection::times(self::ITERATIONS)
             ->map(function () use ($stripeIds) {
                 return $stripeIds->id('abc');
             });
@@ -75,7 +74,7 @@ class StripeIdsTest extends TestCase
     /** @test */
     public function it_can_find_models_by_id()
     {
-        $stripeIds = new StripeIds(self::ALPHABET, self::LENGTH, self::SEPARATOR, self::PREFIXES);
+        $stripeIds = new StripeIds(self::HASH_LENGTH, self::HASH_ALPHABET);
 
         // Make a few default models
 
@@ -103,7 +102,7 @@ class StripeIdsTest extends TestCase
 
         $this->assertEquals(3, OverriddenModel::query()->count());
 
-        $defaultModelQuery = $stripeIds->findByStripeId($defaultModel->getKey());
+        $defaultModelQuery = $stripeIds->findByStripeId($defaultModel->getKey(), self::PREFIXES);
 
         // Assert that the query is setup to find only default models
 
@@ -113,7 +112,7 @@ class StripeIdsTest extends TestCase
 
         $this->assertEquals($defaultModel->getKey(), $defaultModelQuery->first()->getKey());
 
-        $overriddenModelQuery = $stripeIds->findByStripeId($overriddenModel->getKey());
+        $overriddenModelQuery = $stripeIds->findByStripeId($overriddenModel->getKey(), self::PREFIXES);
 
         // Assert that the query is setup to find only overridden models
 
@@ -127,7 +126,7 @@ class StripeIdsTest extends TestCase
     /** @test */
     public function it_can_build_queries_using_missing_ids()
     {
-        $stripeIds = new StripeIds(self::ALPHABET, self::LENGTH, self::SEPARATOR, self::PREFIXES);
+        $stripeIds = new StripeIds(self::HASH_LENGTH, self::HASH_ALPHABET, self::PREFIXES);
 
         // Make a few default models
 
@@ -157,7 +156,7 @@ class StripeIdsTest extends TestCase
 
         // Create a query using the correct prefix but for an id that doesn't exist
 
-        $defaultModelQuery = $stripeIds->findByStripeId($defaultModel->getStripeIdPrefix().$defaultModel->getStripeIdSeparator().'ABC123');
+        $defaultModelQuery = $stripeIds->findByStripeId($defaultModel->getStripeIdPrefix().'ABC123');
 
         $this->assertInstanceOf(DefaultModel::class, $defaultModelQuery->getModel());
 
@@ -167,7 +166,7 @@ class StripeIdsTest extends TestCase
 
         // Create a new query using the correct prefix but for an id that doesn't exist
 
-        $overriddenModelQuery = $stripeIds->findByStripeId($overriddenModel->getStripeIdPrefix().$overriddenModel->getStripeIdSeparator().'ABC123');
+        $overriddenModelQuery = $stripeIds->findByStripeId($overriddenModel->getStripeIdPrefix().'ABC123');
 
         $this->assertInstanceOf(OverriddenModel::class, $overriddenModelQuery->getModel());
 
@@ -179,7 +178,7 @@ class StripeIdsTest extends TestCase
     /** @test */
     public function it_throws_an_exception_for_invalid_prefixes()
     {
-        $stripeIds = new StripeIds(self::ALPHABET, self::LENGTH, self::SEPARATOR, self::PREFIXES);
+        $stripeIds = new StripeIds(self::HASH_LENGTH, self::HASH_ALPHABET, self::PREFIXES);
 
         // Create a query using the correct prefix but for an id that doesn't exist
 

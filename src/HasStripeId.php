@@ -14,13 +14,7 @@ trait HasStripeId
     {
         static::creating(function ($model) {
             if (!$model->getKey()) {
-                $stripeIds = new StripeIds(
-                    $model->getStripeIdAlphabet(),
-                    $model->getStripeIdLength(),
-                    $model->getStripeIdSeparator()
-                );
-
-                $model->{$model->getKeyName()} = $stripeIds->id($model->getStripeIdPrefix());
+                $model->{$model->getKeyName()} = $model->getStripeId();
             }
         });
     }
@@ -35,23 +29,30 @@ trait HasStripeId
         return 'string';
     }
 
-    public function getStripeIdAlphabet()
+    public function getStripeIdHashAlphabet()
     {
-        return $this->stripeIdAlphabet ?? config('stripe-ids.alphabet');
+        return $this->stripeIdHashAlphabet ?? null;
     }
 
-    public function getStripeIdLength()
+    public function getStripeIdHashLength()
     {
-        return $this->stripeIdLength ?? config('stripe-ids.length');
-    }
-
-    public function getStripeIdSeparator()
-    {
-        return $this->stripeIdSeparator ?? config('stripe-ids.separator');
+        return $this->stripeIdHashLength ?? null;
     }
 
     public function getStripeIdPrefix()
     {
-        return $this->stripeIdPrefix ?? array_flip(config('stripe-ids.separator'))[get_class()] ?? null;
+        return $this->stripeIdPrefix ?? array_flip(config('stripe_ids.prefixes'))[get_class()] ?? null;
+    }
+
+    public function getStripeId()
+    {
+        /** @var StripeIds $stripeIds */
+        $stripeIds = app(StripeIds::class);
+
+        return $stripeIds->id(
+            $this->getStripeIdPrefix(),
+            $this->getStripeIdHashLength(),
+            $this->getStripeIdHashAlphabet()
+        );
     }
 }

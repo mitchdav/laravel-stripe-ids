@@ -13,15 +13,12 @@ class HasStripeIdTest extends TestCase
         /** @var DefaultModel $model */
         $model = DefaultModel::query()->make();
 
-        $prefix = $model->getStripeIdPrefix();
-        $separator = $model->getStripeIdSeparator();
-
         $this->assertNull($model->getKey());
 
         $model->save();
 
         $this->assertNotNull($model->getKey());
-        $this->assertStringStartsWith($prefix.$separator, $model->getKey());
+        $this->assertStringStartsWith($model->getStripeIdPrefix(), $model->getKey());
     }
 
     /** @test */
@@ -31,21 +28,20 @@ class HasStripeIdTest extends TestCase
         $model = OverriddenModel::query()->make();
 
         $prefix = $model->getStripeIdPrefix();
-        $alphabet = $model->getStripeIdAlphabet();
-        $length = $model->getStripeIdLength();
-        $separator = $model->getStripeIdSeparator();
+        $alphabet = $model->getStripeIdHashAlphabet();
+        $length = $model->getStripeIdHashLength();
 
         $this->assertNull($model->getKey());
 
         $model->save();
 
         $this->assertNotNull($model->getKey());
-        $this->assertStringStartsWith($prefix.$separator, $model->getKey());
+        $this->assertStringStartsWith($prefix, $model->getKey());
 
-        $pattern = '/^'.$prefix.$separator.'['.$alphabet.']+$/';
+        $pattern = '/^'.$prefix.'['.$alphabet.']+$/';
 
         $this->assertEquals(1, preg_match($pattern, $model->getKey()));
-        $this->assertEquals(strlen($prefix) + strlen($separator) + $length, strlen($model->getKey()));
+        $this->assertEquals(strlen($prefix) + $length, strlen($model->getKey()));
     }
 
     /** @test */
