@@ -1,12 +1,13 @@
 <?php
 
-namespace Mitchdav\StripeIds\Tests;
+namespace Mitchdav\StripeIds\Tests\Generators;
 
 use Illuminate\Support\Collection;
-use Mitchdav\StripeIds\Generators\GeneratorInterface;
+use Mitchdav\StripeIds\Generators\RandomBytesGenerator;
 use Mitchdav\StripeIds\StripeIds;
+use Mitchdav\StripeIds\Tests\TestCase;
 
-class StripeIdsTest extends TestCase
+class RandomBytesGeneratorTest extends TestCase
 {
     const HASH_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
@@ -17,7 +18,7 @@ class StripeIdsTest extends TestCase
     /** @test */
     public function it_can_generate_hashes()
     {
-        $stripeIds = new StripeIds(app(GeneratorInterface::class), self::HASH_LENGTH, self::HASH_ALPHABET);
+        $stripeIds = new StripeIds(new RandomBytesGenerator(), self::HASH_LENGTH, self::HASH_ALPHABET);
 
         $hash = $stripeIds->hash();
 
@@ -28,7 +29,7 @@ class StripeIdsTest extends TestCase
     /** @test */
     public function it_can_generate_ids()
     {
-        $stripeIds = new StripeIds(app(GeneratorInterface::class), self::HASH_LENGTH, self::HASH_ALPHABET);
+        $stripeIds = new StripeIds(new RandomBytesGenerator(), self::HASH_LENGTH, self::HASH_ALPHABET);
 
         $prefix = 'abc_';
 
@@ -41,7 +42,7 @@ class StripeIdsTest extends TestCase
     /** @test */
     public function it_can_generate_unique_hashes()
     {
-        $stripeIds = new StripeIds(app(GeneratorInterface::class), self::HASH_LENGTH, self::HASH_ALPHABET);
+        $stripeIds = new StripeIds(new RandomBytesGenerator(), self::HASH_LENGTH, self::HASH_ALPHABET);
 
         $hashes = Collection::times(self::ITERATIONS)
             ->map(function () use ($stripeIds) {
@@ -54,11 +55,11 @@ class StripeIdsTest extends TestCase
     /** @test */
     public function it_can_generate_unique_ids()
     {
-        $stripeIds = new StripeIds(app(GeneratorInterface::class), self::HASH_LENGTH, self::HASH_ALPHABET);
+        $stripeIds = new StripeIds(new RandomBytesGenerator(), self::HASH_LENGTH, self::HASH_ALPHABET);
 
         $ids = Collection::times(self::ITERATIONS)
             ->map(function () use ($stripeIds) {
-                return $stripeIds->id('abc_');
+                return $stripeIds->id('abc');
             });
 
         $this->assertCount(self::ITERATIONS, $ids->unique());

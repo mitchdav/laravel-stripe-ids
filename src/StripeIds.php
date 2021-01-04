@@ -2,12 +2,15 @@
 
 namespace Mitchdav\StripeIds;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Str;
+use Mitchdav\StripeIds\Generators\GeneratorInterface;
 
 class StripeIds
 {
+    /**
+     * @var GeneratorInterface
+     */
+    private $generator;
+
     /**
      * @var int
      */
@@ -18,16 +21,11 @@ class StripeIds
      */
     private $hashAlphabet;
 
-    /**
-     * @var array
-     */
-    private $prefixes;
-
-    public function __construct(int $hashLength, string $hashAlphabet, array $prefixes = [])
+    public function __construct(GeneratorInterface $generator, int $hashLength, string $hashAlphabet)
     {
+        $this->generator = $generator;
         $this->hashLength = $hashLength;
         $this->hashAlphabet = $hashAlphabet;
-        $this->prefixes = $prefixes;
     }
 
     public function id(string $prefix, $hashLength = null, $hashAlphabet = null)
@@ -41,30 +39,12 @@ class StripeIds
         $hashAlphabet = $alphabet ?? $this->hashAlphabet;
         $hashAlphabetLength = strlen($hashAlphabet);
 
-        return collect(str_split(random_bytes($hashLength)))
+        $bytes = $this->generator->generate($hashLength);
+
+        return collect(str_split($bytes))
             ->map(function ($randomByte) use ($hashAlphabet, $hashAlphabetLength) {
                 return $hashAlphabet[ord($randomByte) % $hashAlphabetLength];
             })
             ->join('');
-    }
-
-    public function findByStripeId($id, $prefixes = null)
-    {
-        /** @var string $model */
-        $model = collect($prefixes ?? $this->prefixes)
-            ->first(function ($model, $prefix) use ($id) {
-                return Str::startsWith($id, $prefix);
-            });
-
-        if ($model !== null) {
-            /** @var Model $instance */
-            $instance = app($model);
-
-            return $instance
-                ->newModelQuery()
-                ->whereKey($id);
-        } else {
-            throw new ModelNotFoundException();
-        }
     }
 }

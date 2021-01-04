@@ -17,7 +17,7 @@ class FacadeTest extends TestCase
     /** @test */
     public function it_can_generate_ids()
     {
-        $prefix = 'abc';
+        $prefix = 'abc_';
 
         $id = StripeIds::id($prefix);
 

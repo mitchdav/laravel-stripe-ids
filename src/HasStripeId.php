@@ -41,7 +41,7 @@ trait HasStripeId
 
     public function getStripeIdPrefix()
     {
-        return $this->stripeIdPrefix ?? array_flip(config('stripe_ids.prefixes'))[get_class()] ?? null;
+        return $this->stripeIdPrefix ?? null;
     }
 
     public function getStripeId()
